@@ -3,60 +3,68 @@ import json
 
 from .exceptions import ValidationError
 from .config import BASE_DB_FILE_PATH
+from datetime import date
 
 class Table(object):
     
     def __init__(self, db_name, table_name, columns):
         self.name = table_name
         self.path = os.path.join(BASE_DB_FILE_PATH, db_name, table_name)    #/tmp/simple_database/db_name
+        self.structure = {}
         self.structure['structure'] = columns
+        self.structure['data'] = {}
         self._create_json_file()
         
         
     def _create_json_file(self):
         with open(self.path, 'w+') as fout:
-            data = json.dump(self.structure, fout)
+            data = json.dumps(self.structure, fout)
             fout.write(data)
             fout.close
     
     
-    def _build_data_from_args(*args):
-        new_data = {}
-        count = 0
+    def _build_data_from_args(self, *args):
+        new_data = self.structure['data']
+        index = 0
         
         for item in self.structure['structure']:
             name = item['name']
-            if type(args[count]) is date:
-                value = str(args[count])
+            if isinstance(args[0][index], date):
+                value = str(args[0][index])
             else:
-                value = args[count]
+                value = args[0][index]
             new_data[name] = value
+            index += 1
             
         return new_data
     
-    
+    """
     def _check_structure(self, *args):
-        correct_structure = self.structure
-        new_dict = self._build_dict_from_args(args)
+        correct_structure = self.structure['structure']
+        new_dict = self._build_data_from_args(args)
         missing_count = len(correct_structure) - len(new_dict)
         
         if missing_count == 0:
             return True
         else:
             return False
-            
+    """        
         
     def insert(self, *args):
-        if not _check_structure(self, args, self.structure):
+        """
+        if not self._check_structure(self, args):
             raise TypeError('Missing some of arguments to match structure.')
+        """
         
         insert_data = self._build_data_from_args(args)
-        with open(self.path, 'a+') as fout
-            table = json.load(fout)
-            table['data'].append(insert_data)
-        
-   
-    
+        with open(self.path, 'a+') as fout:
+            fout.write(json.dumps(insert_data))
+
+
     def count(self):
-        pass
-    
+        counter = 0
+        
+        for item in self.structure['data'].items():
+            counter += 1
+            
+        return counter

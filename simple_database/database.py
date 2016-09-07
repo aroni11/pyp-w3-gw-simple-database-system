@@ -8,6 +8,7 @@ class Database(object):
     
     def __init__(self, db_name):
         self.db_name = db_name
+        self.tables = []
         self.path = os.path.join(BASE_DB_FILE_PATH, db_name)
         
         if not self._check_if_db_exists(db_name):
@@ -23,14 +24,9 @@ class Database(object):
 
     def create_table(self, name, columns):
         new_table = Table(self.db_name, name, columns)
+        self.tables.append(name)
         setattr(self, name, new_table)
-    
+        
     
     def show_tables(self):
-        arr = []
-        
-        for file in os.listdir(self.path):
-            if file.endswith(".json"):
-                arr.append(file)
-
-        return arr
+        return self.tables    
